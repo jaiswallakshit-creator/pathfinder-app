@@ -3,6 +3,48 @@ import pandas as pd
 import io
 
 st.set_page_config(page_title="PathFinder", page_icon="🧭")
+st.markdown("""
+<style>
+/* Background */
+.stApp {
+    background: linear-gradient(135deg, #141e30, #243b55);
+}
+
+/* Title */
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    text-align: center;
+    background: linear-gradient(90deg, #00f260, #0575e6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+/* Card */
+.card {
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+div.stButton > button {
+    background: linear-gradient(90deg, #00f260, #0575e6);
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+/* Inputs */
+input {
+    border-radius: 10px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 QUESTIONS_CSV = """Question_ID|Text|Trait
 Q01|I enjoy building or fixing mechanical things (machines, electronics, etc.)|Realistic
@@ -37,47 +79,50 @@ if "step" not in st.session_state:
     st.session_state.answers = {}
 
 # HOME
-if st.session_state.step == 0:
-    st.title("🧭 PathFinder")
-    name = st.text_input("Enter your name")
+st.markdown('<div class="hero-title">🚀 PathFinder Pro</div>', unsafe_allow_html=True)
 
-    if st.button("Start"):
-        if name:
-            st.session_state.name = name
-            st.session_state.step = 1
-            st.rerun()
+st.markdown('<div class="card">', unsafe_allow_html=True)
+
+name = st.text_input("👤 Enter your name")
+
+if st.button("Start Your Journey 🚀"):
+    if name:
+        st.session_state.name = name
+        st.session_state.step = 1
+        st.rerun()
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # QUIZ
-elif st.session_state.step == 1:
-    df = load_questions()
-    i = len(st.session_state.answers)
+st.markdown('<div class="card">', unsafe_allow_html=True)
 
-    if i < len(df):
-        row = df.iloc[i]
+st.progress((i + 1) / len(df))
+st.write(f"### 🧠 Question {i+1}")
+st.write(row['Text'])
 
-        st.progress((i + 1) / len(df))
-        st.write(f"Q{i+1}: {row['Text']}")
+val = st.radio("Select your answer:", [1,2,3,4,5], key=f"q{i}")
 
-        val = st.radio("Rate:", [1, 2, 3, 4, 5], key=f"q{i}")
-
-        if st.button("Next"):
-            st.session_state.answers[row["Question_ID"]] = val
-            st.rerun()
-    else:
-        st.session_state.step = 2
-        st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
 # RESULT
-elif st.session_state.step == 2:
-    df = load_questions()
-    scores = calculate_scores(st.session_state.answers, df)
-    top = get_top(scores)
+st.markdown('<div class="card">', unsafe_allow_html=True)
 
-    st.success(f"{st.session_state.name}, you are {top}")
+st.markdown(f"## 🎯 {st.session_state.name}, You are **{top}**")
 
-    st.bar_chart(pd.DataFrame(scores, index=[0]).T)
+st.bar_chart(pd.DataFrame(scores, index=[0]).T)
 
-    if st.button("Restart"):
-        st.session_state.step = 0
-        st.session_state.answers = {}
-        st.rerun()
+st.markdown("### 💼 Recommended Careers")
+
+career_map = {
+    "Realistic": ["Engineer", "Pilot"],
+    "Investigative": ["Doctor", "Scientist"],
+    "Artistic": ["Designer", "Writer"],
+    "Social": ["Teacher", "Psychologist"],
+    "Enterprising": ["Business", "Manager"],
+    "Conventional": ["Accountant", "Banker"],
+}
+
+for c in career_map[top]:
+    st.write("👉", c)
+
+st.markdown('</div>', unsafe_allow_html=True)
